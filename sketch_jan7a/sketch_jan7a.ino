@@ -2,6 +2,11 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <time.h>
+#include <GxEPD2_BW.h>
+#include <Adafruit_GFX.h>  // GxEPD2 依赖 Adafruit_GFX 库
+
+// 创建 GxEPD2 实例，指定屏幕型号和引脚 2.13 黑白
+GxEPD2_BW<GxEPD2_213_B72, GxEPD2_213_B72::HEIGHT> display(GxEPD2_213_B72(/*CS=*/5, /*DC=*/17, /*RST=*/16, /*BUSY=*/4));
 
 const int ledPin = 2; // 定义控制LED的引脚 (GPIO 2)
 
@@ -44,6 +49,19 @@ void setup() {
     }
     Serial.println("时间同步成功");
   }
+
+  // 清屏并设置初始内容
+  display.setRotation(1);  // 屏幕方向
+  display.setFullWindow();  // 使用全屏模式
+
+  display.firstPage();
+  do {
+    display.fillScreen(GxEPD_WHITE);  // 白色背景
+    display.setTextColor(GxEPD_BLACK);
+    display.setCursor(10, 20);
+    display.setTextSize(2);
+    display.println("Hello, ePaper!");
+  } while (display.nextPage());  // 刷新屏幕
 }
 void loop() {
   static int prevHour = -1;  // 用于存储上一次获取的小时
