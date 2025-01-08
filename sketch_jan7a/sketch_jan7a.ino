@@ -2,19 +2,11 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <time.h>
-<<<<<<< HEAD:sketch_jan7a.ino
 // #include <GxEPD2_BW.h>  // 包含 GxEPD2 黑白屏库
 #include <GxEPD2_3C.h>
 #include <Adafruit_GFX.h>  // 包含 Adafruit GFX 图形库
 // 创建屏幕对象，指定型号和引脚
 GxEPD2_3C<GxEPD2_266c, GxEPD2_266c::HEIGHT> display(GxEPD2_266c(/*CS=*/5, /*DC=*/17, /*RST=*/16, /*BUSY=*/4));
-=======
-#include <GxEPD2_BW.h>
-#include <Adafruit_GFX.h>  // GxEPD2 依赖 Adafruit_GFX 库
-
-// 创建 GxEPD2 实例，指定屏幕型号和引脚 2.13 黑白
-GxEPD2_BW<GxEPD2_213_B72, GxEPD2_213_B72::HEIGHT> display(GxEPD2_213_B72(/*CS=*/5, /*DC=*/17, /*RST=*/16, /*BUSY=*/4));
->>>>>>> 30a963d0d07b09db4a0dd0cea9c134b9dbcfb150:sketch_jan7a/sketch_jan7a.ino
 
 const int ledPin = 2; // 定义控制LED的引脚 (GPIO 2)
 int counter = 0;  // 定义一个计数器变量
@@ -80,9 +72,8 @@ void setup() {
     }
     Serial.println("时间同步成功");
   }
-<<<<<<< HEAD:sketch_jan7a.ino
    // 获取时间并打印到屏幕
-  String currentTime = getFormattedTime();
+  // String currentTime = getFormattedTime();
   display.init(115200, true, 2, false);  // 初始化屏幕
   // 启用或禁用调试信息输出。
   // 控制屏幕刷新时的延迟模式，用于优化屏幕的刷新效果。
@@ -103,25 +94,11 @@ void setup() {
     display.println("Hello shaomai");
 
 
-    display.fillScreen(GxEPD_WHITE);  // 填充背景
-    display.setTextColor(GxEPD_BLACK);  // 设置文字颜色为黑色
-    display.setCursor(10,70); // 设置文本的起始位置
-    display.setTextSize(1); // 设置文字的缩放比例。
-    display.println(currentTime);
-=======
-
-  // 清屏并设置初始内容
-  display.setRotation(1);  // 屏幕方向
-  display.setFullWindow();  // 使用全屏模式
-
-  display.firstPage();
-  do {
-    display.fillScreen(GxEPD_WHITE);  // 白色背景
-    display.setTextColor(GxEPD_BLACK);
-    display.setCursor(10, 20);
-    display.setTextSize(2);
-    display.println("Hello, ePaper!");
->>>>>>> 30a963d0d07b09db4a0dd0cea9c134b9dbcfb150:sketch_jan7a/sketch_jan7a.ino
+    // display.fillScreen(GxEPD_WHITE);  // 填充背景
+    // display.setTextColor(GxEPD_BLACK);  // 设置文字颜色为黑色
+    // display.setCursor(10,70); // 设置文本的起始位置
+    // display.setTextSize(1); // 设置文字的缩放比例。
+    // display.println(currentTime);
   } while (display.nextPage());  // 刷新屏幕
 }
 
@@ -139,7 +116,7 @@ void loop() {
 
     display.fillScreen(GxEPD_WHITE);  // 填充背景
     display.setTextColor(GxEPD_BLACK);  // 设置文字颜色为黑色
-    display.setCursor(110, 80); // 设置文本的起始位置
+    display.setCursor(10, 80); // 设置文本的起始位置
     display.setTextSize(1); // 设置文字的缩放比例。
     display.println(counterString);
   } while (display.nextPage());
