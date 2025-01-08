@@ -2,9 +2,14 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <time.h>
+// #include <GxEPD2_BW.h>  // 包含 GxEPD2 黑白屏库
+#include <GxEPD2_3C.h>
+#include <Adafruit_GFX.h>  // 包含 Adafruit GFX 图形库
+// 创建屏幕对象，指定型号和引脚
+GxEPD2_3C<GxEPD2_266c, GxEPD2_266c::HEIGHT> display(GxEPD2_266c(/*CS=*/5, /*DC=*/17, /*RST=*/16, /*BUSY=*/4));
 
 const int ledPin = 2; // 定义控制LED的引脚 (GPIO 2)
-
+int counter = 0;  // 定义一个计数器变量
 const char* ssid = "Arno2joy_home";
 const char* password = "13757130316";
 // NTP服务器相关信息
@@ -14,6 +19,30 @@ const char* password = "13757130316";
 #define TZ_SEC ((TZ)*3600)     // 时区偏移值（秒）
 #define DST_SEC ((DST_MN)*60)  // 夏令时持续时间（秒）
 
+// 定义函数返回当前时间字符串
+String getFormattedTime() {
+  static int prevHour = -1;  // 用于存储上一次获取的小时
+  static int prevMin = -1;   // 用于存储上一次获取的分钟
+
+  time_t now = time(nullptr);        // 获取当前时间
+  struct tm* ltm = localtime(&now);  // 将时间转换为本地时间结构体
+  // 如果获取时间失败，打印错误信息并返回
+  if (now == (time_t)-1) {
+    return "Failed to obtain time";
+  }
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    return "Time Sync Error";  // 如果时间获取失败，返回错误信息
+  }
+
+  // 格式化时间为字符串
+  char timeString[30];
+  strftime(timeString, sizeof(timeString), "%Y/%/%d %H:%M:%S", &timeinfo);
+
+  // 返回格式化时间
+  return String(timeString);
+}
+
 void setup() {
   Serial.begin(115200);
 
@@ -21,7 +50,6 @@ void setup() {
   // SPI.begin(13, 14, 14, 4); // 初始化SPI，并指定自定义引脚
 
   delay(1000);          // 等待串口稳定
-  Serial.print("hello world!");
   pinMode(ledPin, OUTPUT); // 设置引脚为输出模式
   digitalWrite(ledPin, LOW); // 初始设置为低电平
    // 连接WiFi
@@ -44,38 +72,55 @@ void setup() {
     }
     Serial.println("时间同步成功");
   }
+   // 获取时间并打印到屏幕
+  String currentTime = getFormattedTime();
+  display.init(115200, true, 2, false);  // 初始化屏幕
+  // 启用或禁用调试信息输出。
+  // 控制屏幕刷新时的延迟模式，用于优化屏幕的刷新效果。
+  // 是否启用快速刷新模式。
+  // 设置屏幕内容
+  display.setRotation(1);  // 旋转屏幕方向
+  display.setFullWindow();  // 使用全屏模式
+  display.firstPage();  // 开始绘制
+  do {
+    display.fillScreen(GxEPD_WHITE);  // 清屏为白色
+
+    // 绘制红色矩形
+    // display.fillRect(0, 100, 100, 50, GxEPD_RED);
+
+    display.setTextColor(GxEPD_BLACK);  // 设置文字颜色为黑色
+    display.setCursor(10, 20); // 设置文本的起始位置
+    display.setTextSize(1); // 设置文字的缩放比例。
+    display.println("Hello shaomai");
+
+
+    display.fillScreen(GxEPD_WHITE);  // 填充背景
+    display.setTextColor(GxEPD_BLACK);  // 设置文字颜色为黑色
+    display.setCursor(10,70); // 设置文本的起始位置
+    display.setTextSize(1); // 设置文字的缩放比例。
+    display.println(currentTime);
+  } while (display.nextPage());  // 刷新屏幕
 }
+
+
+
 void loop() {
-  static int prevHour = -1;  // 用于存储上一次获取的小时
-  static int prevMin = -1;   // 用于存储上一次获取的分钟
 
-  time_t now = time(nullptr);        // 获取当前时间
-  struct tm* ltm = localtime(&now);  // 将时间转换为本地时间结构体
+  char counterString[10];
+  sprintf(counterString, "Count: %d", counter);
 
-  // 如果获取时间失败，打印错误信息并返回
-  if (now == (time_t)-1) {
-    Serial.println("Failed to obtain time");
-    return;
-  }
-  printLocalTime();
-// 读取当前引脚状态
-  int currentState = digitalRead(ledPin);
+    // 显示时间
+  display.setPartialWindow(0, 80, 100, 50);
+  display.firstPage();
+  do {
 
-  // 切换电平状态：高变低，低变高
-  if (currentState == HIGH) {
-    digitalWrite(ledPin, LOW); // 当前高电平，设置为低电平
-  } else {
-    digitalWrite(ledPin, HIGH); // 当前低电平，设置为高电平
-  }
+    display.fillScreen(GxEPD_WHITE);  // 填充背景
+    display.setTextColor(GxEPD_BLACK);  // 设置文字颜色为黑色
+    display.setCursor(110, 80); // 设置文本的起始位置
+    display.setTextSize(1); // 设置文字的缩放比例。
+    display.println(counterString);
+  } while (display.nextPage());
+
   // 等待一段时间再继续循环
   delay(1000);
-}
-
-void printLocalTime() {
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("Failed to obtain time");
-    return;
-  }
-  Serial.println(&timeinfo, "%Y-%m-%d %H:%M:%S");
 }
