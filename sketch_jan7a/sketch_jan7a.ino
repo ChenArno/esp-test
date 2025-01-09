@@ -14,6 +14,8 @@ GxEPD2_3C<GxEPD2_420_GYE042A87, GxEPD2_420_GYE042A87::HEIGHT> display(GxEPD2_420
 
 #define NORMAL_FONT u8g2_font_wqy16_t_gb2312a  //设置NORMAL_FONT默认字体
 
+const int ep420Width = 400;
+const int ep420Height = 300;
 const int SWITCH_PIN = 14;// 按键
 
 const int ledPin = 22; // 定义控制LED的引脚 (GPIO 2)
@@ -106,7 +108,7 @@ void setup() {
   do {
     // 绘制红色矩形
     // display.fillRect(0, 100, 100, 50, GxEPD_RED);
-    // display.fillRect(0, 30, 400, 800, GxEPD_BLACK);  //屏幕顶部画一个红色的矩形
+    display.fillRect(0, 0, ep420Width, 20, GxEPD_BLACK);  //屏幕顶部画一个红色的矩形
     u8g2Fonts.setFont(NORMAL_FONT);
     u8g2Fonts.setBackgroundColor(GxEPD_WHITE);
     u8g2Fonts.setForegroundColor(GxEPD_BLACK);
@@ -116,7 +118,7 @@ void setup() {
     // display.setCursor(10, 20); // 设置文本的起始位置
     // display.setTextSize(1); // 设置文字的缩放比例。
     // display.println("Hello shaomai");
-
+    display.drawLine(0, 60, ep420Width, 60, GxEPD_BLACK);
   } while (display.nextPage());  // 刷新屏幕
 }
 
@@ -129,9 +131,9 @@ void loop() {
       String time = getFormattedTime("%H:%M:%S");
       Serial.println(date+" "+time);
       int16_t x = 10, y = 120;           // 屏幕绘制起点
-      int16_t w = 400, h = 250;            // 裁剪宽高
+      int16_t w = ep420Width, h = 250;            // 裁剪宽高
         // 显示时间
-      display.setPartialWindow(x, y, w, h);
+      display.setPartialWindow(x, y, w, h); // 下面的要在该区域内
       display.firstPage();
       do {
         // display.fillScreen(GxEPD_WHITE);  // 填充背景
@@ -143,11 +145,23 @@ void loop() {
         // display.setTextSize(3); // 设置文字的缩放比例。
         // display.println(time);
 
+        u8g2Fonts.setForegroundColor(GxEPD_BLACK);
+        u8g2Fonts.setBackgroundColor(GxEPD_WHITE);
+        u8g2Fonts.setFont(NORMAL_FONT);
+        u8g2Fonts.setCursor(x, y+20);
+        u8g2Fonts.print("当前时间：");  // 显示时间字符串
+
+        u8g2Fonts.setForegroundColor(GxEPD_BLACK);
+        u8g2Fonts.setBackgroundColor(GxEPD_WHITE);
+        u8g2Fonts.setFont(NORMAL_FONT);
+        u8g2Fonts.setCursor(x+100, y+20);
+        u8g2Fonts.print(date);  // 显示时间字符串
+
         u8g2Fonts.setFont(u8g2_font_logisoso50_tn);
         u8g2Fonts.setBackgroundColor(GxEPD_WHITE);
         u8g2Fonts.setForegroundColor(GxEPD_BLACK);
-        u8g2Fonts.setCursor(x, y+120);
-        u8g2Fonts.print(date+"\n"+time);  // 显示时间字符串
+        u8g2Fonts.setCursor(x+60, y+120);
+        u8g2Fonts.print(time);  // 显示时间字符串
       } while (display.nextPage());
     }
     lastDebounceTime = millis();
