@@ -34,7 +34,7 @@ void IRAM_ATTR handleSwitchInterrupt() {
 }
 
 // 定义函数返回当前时间字符串
-String getFormattedTime() {
+String getFormattedTime(const String& format) {
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) {
     return "Time Sync Error";  // 如果时间获取失败，返回错误信息
@@ -42,7 +42,7 @@ String getFormattedTime() {
 
   // 格式化时间为字符串
   char timeString[30] = {0};  // 确保缓冲区初始化为零
-  strftime(timeString, sizeof(timeString), "%Y/%m/%d %H:%M:%S", &timeinfo);
+  strftime(timeString, sizeof(timeString), format.c_str(), &timeinfo);
 
   // 返回格式化时间
   return String(timeString);
@@ -105,24 +105,28 @@ void setup() {
   } while (display.nextPage());  // 刷新屏幕
 }
 
-
-
 void loop() {
   int currentState = digitalRead(SWITCH_PIN);
   if (millis() - lastDebounceTime > DEBOUNCE_DELAY) {
     if (currentState == LOW) {
          // 获取时间并打印到屏幕
-      String currentTime = getFormattedTime();
-      Serial.println(currentTime);
+      String date = getFormattedTime("%Y/%m/%d");
+      String time = getFormattedTime("%H:%M:%S");
+      Serial.println(date+" "+time);
+      int16_t x = 50, y = 120;           // 屏幕绘制起点
+      int16_t w = 200, h = 50;            // 裁剪宽高
         // 显示时间
-      display.setPartialWindow(0, 80, 150, 50);
+      display.setPartialWindow(x, y, w, y);
       display.firstPage();
       do {
         display.fillScreen(GxEPD_WHITE);  // 填充背景
         display.setTextColor(GxEPD_BLACK);  // 设置文字颜色为黑色
-        display.setCursor(10, 80); // 设置文本的起始位置
-        display.setTextSize(1); // 设置文字的缩放比例。
-        display.println(currentTime);
+        display.setCursor(x, y); // 设置文本的起始位置
+        display.setTextSize(3); // 设置文字的缩放比例。
+        display.println(date);
+        display.setCursor(x+20, y+40); // 设置文本的起始位置
+        display.setTextSize(3); // 设置文字的缩放比例。
+        display.println(time);
       } while (display.nextPage());
     }
     lastDebounceTime = millis();
