@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <time.h>
+#include <U8g2_for_Adafruit_GFX.h>
 // #include <GxEPD2_BW.h>  // 包含 GxEPD2 黑白屏库
 #include <GxEPD2_3C.h>
 #include <GxEPD2_BW.h>
@@ -10,6 +11,9 @@
 // GxEPD2_3C<GxEPD2_266c, GxEPD2_266c::HEIGHT> display(GxEPD2_266c(/*CS=*/5, /*DC=*/17, /*RST=*/16, /*BUSY=*/4));
 // 双色 420
 GxEPD2_3C<GxEPD2_420_GYE042A87, GxEPD2_420_GYE042A87::HEIGHT> display(GxEPD2_420_GYE042A87(/*CS=*/5, /*DC=*/17, /*RST=*/16, /*BUSY=*/4));
+
+#define NORMAL_FONT u8g2_font_wqy16_t_gb2312a  //设置NORMAL_FONT默认字体
+
 const int SWITCH_PIN = 14;// 按键
 
 const int ledPin = 22; // 定义控制LED的引脚 (GPIO 2)
@@ -28,6 +32,8 @@ const char* password = "afd168888";
 #define DEBOUNCE_DELAY 50  // 防抖延时（毫秒）
 unsigned long lastDebounceTime = 0;  // 上次状态变化时间
 volatile bool switchTriggered = false;  // 用于标记中断触发
+U8G2_FOR_ADAFRUIT_GFX u8g2Fonts;
+
 // 中断处理函数
 void IRAM_ATTR handleSwitchInterrupt() {
   switchTriggered = true;  // 设置标记
@@ -89,18 +95,26 @@ void setup() {
   // 是否启用快速刷新模式。
   // 设置屏幕内容
   display.setRotation(0);  // 旋转屏幕方向
+  u8g2Fonts.begin(display);
+  u8g2Fonts.setFontDirection(0);
+  u8g2Fonts.setForegroundColor(GxEPD_BLACK);  // 设置前景色
+  u8g2Fonts.setBackgroundColor(GxEPD_WHITE);  // 设置背景色
+  u8g2Fonts.setFont(NORMAL_FONT);
+  // display.fillScreen(GxEPD_WHITE);  // 清屏为白色
   display.setFullWindow();  // 使用全屏模式
   display.firstPage();  // 开始绘制
   do {
-    display.fillScreen(GxEPD_WHITE);  // 清屏为白色
-
     // 绘制红色矩形
     // display.fillRect(0, 100, 100, 50, GxEPD_RED);
-
-    display.setTextColor(GxEPD_BLACK);  // 设置文字颜色为黑色
-    display.setCursor(10, 20); // 设置文本的起始位置
-    display.setTextSize(1); // 设置文字的缩放比例。
-    display.println("Hello shaomai");
+    u8g2Fonts.setFont(u8g2_font_helvB10_tf);
+    u8g2Fonts.setBackgroundColor(GxEPD_WHITE);
+    u8g2Fonts.setForegroundColor(GxEPD_BLACK);
+    u8g2Fonts.setCursor(100, 50);
+    u8g2Fonts.print("hello 水墨屏的黑色刷新");
+    // display.setTextColor(GxEPD_BLACK);  // 设置文字颜色为黑色
+    // display.setCursor(10, 20); // 设置文本的起始位置
+    // display.setTextSize(1); // 设置文字的缩放比例。
+    // display.println("Hello shaomai");
 
   } while (display.nextPage());  // 刷新屏幕
 }
@@ -114,19 +128,31 @@ void loop() {
       String time = getFormattedTime("%H:%M:%S");
       Serial.println(date+" "+time);
       int16_t x = 50, y = 120;           // 屏幕绘制起点
-      int16_t w = 200, h = 50;            // 裁剪宽高
+      int16_t w = 300, h = 200;            // 裁剪宽高
         // 显示时间
-      display.setPartialWindow(x, y, w, y);
+      display.setPartialWindow(x, y, w, h);
       display.firstPage();
       do {
-        display.fillScreen(GxEPD_WHITE);  // 填充背景
-        display.setTextColor(GxEPD_BLACK);  // 设置文字颜色为黑色
-        display.setCursor(x, y); // 设置文本的起始位置
-        display.setTextSize(3); // 设置文字的缩放比例。
-        display.println(date);
-        display.setCursor(x+20, y+40); // 设置文本的起始位置
-        display.setTextSize(3); // 设置文字的缩放比例。
-        display.println(time);
+        // display.fillScreen(GxEPD_WHITE);  // 填充背景
+        // display.setTextColor(GxEPD_BLACK);  // 设置文字颜色为黑色
+        // display.setCursor(x, y); // 设置文本的起始位置
+        // display.setTextSize(3); // 设置文字的缩放比例。
+        // display.println(date);
+        // display.setCursor(x+20, y+40); // 设置文本的起始位置
+        // display.setTextSize(3); // 设置文字的缩放比例。
+        // display.println(time);
+
+        u8g2Fonts.setFont(u8g2_font_logisoso50_tn);
+        u8g2Fonts.setForegroundColor(GxEPD_BLACK);
+        u8g2Fonts.setBackgroundColor(GxEPD_WHITE);
+        u8g2Fonts.setCursor(x, y);
+
+        u8g2Fonts.setFont(u8g2_font_logisoso50_tn);
+        u8g2Fonts.setForegroundColor(GxEPD_BLACK);
+        u8g2Fonts.setBackgroundColor(GxEPD_WHITE);
+        u8g2Fonts.print(date);  // 显示时间字符串
+        u8g2Fonts.setCursor(x+20, y+80);
+        u8g2Fonts.print(time);  // 显示时间字符串
       } while (display.nextPage());
     }
     lastDebounceTime = millis();
