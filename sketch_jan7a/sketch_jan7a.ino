@@ -106,11 +106,12 @@ void setup() {
   do {
     // 绘制红色矩形
     // display.fillRect(0, 100, 100, 50, GxEPD_RED);
-    u8g2Fonts.setFont(u8g2_font_helvB10_tf);
+    // display.fillRect(0, 30, 400, 800, GxEPD_BLACK);  //屏幕顶部画一个红色的矩形
+    u8g2Fonts.setFont(NORMAL_FONT);
     u8g2Fonts.setBackgroundColor(GxEPD_WHITE);
     u8g2Fonts.setForegroundColor(GxEPD_BLACK);
     u8g2Fonts.setCursor(100, 50);
-    u8g2Fonts.print("hello 水墨屏的黑色刷新");
+    u8g2Fonts.print("水墨屏的黑色刷新");
     // display.setTextColor(GxEPD_BLACK);  // 设置文字颜色为黑色
     // display.setCursor(10, 20); // 设置文本的起始位置
     // display.setTextSize(1); // 设置文字的缩放比例。
@@ -127,8 +128,8 @@ void loop() {
       String date = getFormattedTime("%Y/%m/%d");
       String time = getFormattedTime("%H:%M:%S");
       Serial.println(date+" "+time);
-      int16_t x = 50, y = 120;           // 屏幕绘制起点
-      int16_t w = 300, h = 200;            // 裁剪宽高
+      int16_t x = 10, y = 120;           // 屏幕绘制起点
+      int16_t w = 400, h = 250;            // 裁剪宽高
         // 显示时间
       display.setPartialWindow(x, y, w, h);
       display.firstPage();
@@ -143,16 +144,10 @@ void loop() {
         // display.println(time);
 
         u8g2Fonts.setFont(u8g2_font_logisoso50_tn);
-        u8g2Fonts.setForegroundColor(GxEPD_BLACK);
         u8g2Fonts.setBackgroundColor(GxEPD_WHITE);
-        u8g2Fonts.setCursor(x, y);
-
-        u8g2Fonts.setFont(u8g2_font_logisoso50_tn);
         u8g2Fonts.setForegroundColor(GxEPD_BLACK);
-        u8g2Fonts.setBackgroundColor(GxEPD_WHITE);
-        u8g2Fonts.print(date);  // 显示时间字符串
-        u8g2Fonts.setCursor(x+20, y+80);
-        u8g2Fonts.print(time);  // 显示时间字符串
+        u8g2Fonts.setCursor(x, y+120);
+        u8g2Fonts.print(date+"\n"+time);  // 显示时间字符串
       } while (display.nextPage());
     }
     lastDebounceTime = millis();
